@@ -32,7 +32,7 @@ class BouteilleControlleur
                 $id_bouteille = (int)$requete->url_elements[1];             
                 if(is_numeric($requete->url_elements[1])) 
                 {
-                    if($requete->url_elements[2]) 
+                    if(isset($requete->url_elements[2])) 
                     {
                         switch($requete->url_elements[2]) 
                         {
