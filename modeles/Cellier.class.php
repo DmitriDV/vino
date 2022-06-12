@@ -22,32 +22,36 @@
 	{
 		$rows = Array();
 		$requete ='SELECT 
-						cb.id as id_bouteille_cellier,
-						cb.id_bouteille, 
-						cb.date_achat, 
-						cb.garde_jusqua, 
-						cb.notes, 
-						cb.prix, 
-						cb.quantite,
-						cb.millesime, 
-						b.id,
-						b.nom, 
-						b.type, 
-						b.image, 
-						b.code_saq, 
-						b.url_saq, 
-						b.pays, 
-						b.description,
-						t.type 
-                        c.id
-                        c.nom
-                        c.adresse
-						from vino__cellier_bouteille cb 
-						INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
-						INNER JOIN vino__type t ON t.id = b.type
-                        INNER JOIN vino__cellier c ON cb.id_cellier = c.id
-                        WHERE id_cellier = '. $id .'
-						'; 
+                    cb.id_cellier,
+                    cb.id_bouteille, 
+                    cb.id_achats, 
+                    cb.quantite,
+                    cb.prix, 
+                    cb.millesime, 
+                    cb.garde_jusqua, 
+                    b.id as bouteille_id_bouteille,
+                    b.nom, 
+                    b.image, 
+                    b.code_saq,
+                    b.description,
+                    b.prix_saq,
+                    b.url_saq,
+                    b.url_img,
+                    b.format, 
+                    b.id_type, 
+                    b.id_pays, 
+                    t.type, 
+                    c.id as cellier_id_cellier,
+                    c.nom,
+                    c.adresse,
+                    c.id_usager,
+                    from vino__cellier_bouteille cb 
+                    INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
+                    INNER JOIN vino__type t ON t.id = b.type
+                    INNER JOIN vino__cellier c ON cb.id_cellier = c.id
+                    INNER JOIN vino__usager u ON c.id_usager = u.id
+                    WHERE id_cellier = '. $id .'
+                    '; 
 		if(($res = $this->_db->query($requete)) ==	 true)
 		{
 			if($res->num_rows)
