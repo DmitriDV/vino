@@ -28,34 +28,35 @@ class BouteilleControlleur
             $id_cellier = (int)$requete->url_elements[0];                
             // bouteille
             if(isset($requete->url_elements[1])) 
-            {                
+            {   
+                $id_bouteille = (int)$requete->url_elements[1];             
                 if(is_numeric($requete->url_elements[1])) 
                 {
-                    $id_bouteille = (int)$requete->url_elements[1];
-                    switch($requete->url_elements[2]) 
+                    if($requete->url_elements[2]) 
+                    {
+                        switch($requete->url_elements[2]) 
                         {
                             case 'quantite':
                                 $this->retour["data"] = $requete->url_elements;
                                 $this->ajouterQuantiteBouteille($id_bouteille);
                                 break;
+                            case 'bouteilles':
+                                $this->retour["data"] = $this->getBouteillesInserer();
+                                break;   
                             default:
                                 $this->retour['erreur'] = $this->erreur(400);
                                 unset($this->retour['data']);
                                 break;
                         }
+                    }
+                    else
+                    {
+                        $this->retour["data"] = $this->getBouteilleDansUnCellier($id_bouteille, $id_cellier);
+                    }
                 } 
                 else
                 {
-                    switch($requete->url_elements[1]) 
-                        {
-                            case 'bouteilles':
-                                $this->retour["data"] = $this->getBouteillesInserer();
-                                break;
-                            default:
-                                $this->retour['erreur'] = $this->erreur(400);
-                                unset($this->retour['data']);
-                                break;
-                        }
+                    $this->retour['erreur'] = $this->erreur(400);
                 }
             } 
             else 
@@ -308,6 +309,22 @@ class BouteilleControlleur
 	}
 
     
+    /**
+	 * Méthode qui retourne les informations de la bouteille avec id_bouteille au cellier avec id_cellier
+     * @access public
+	 * @param int $id_cellier du cellier
+     * @param int $id_bouteille du cellier
+	 * @return Array Tableau d'information sur la bouteille retournée
+	 */
+    private function getBouteilleDansUnCellier($id_bouteille, $id_cellier) 
+    {
+        $res = Array();
+		$oCellier = new Cellier();
+		$res = $oCellier->getBouteilleDansCellier($id_bouteille, $id_cellier);
+		
+		return $res; 
+    }
+
     /**
 	 * Méthode qui retourne les informations des bouteilles au cellier avec id_cellier
      * @access public
