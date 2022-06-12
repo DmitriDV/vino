@@ -22,42 +22,52 @@ class BouteilleControlleur
 	 */
 	public function getAction(Requete $requete)
 	{
-		if(isset($requete->url_elements[0])) 
-		{
-            if(is_numeric($requete->url_elements[0])) 
-            {
-				$id_bouteille = $requete->url_elements[0];
-                switch($requete->url_elements[1]) 
-					{
-						case 'quantite':
-							$this->retour["data"] = $requete->url_elements;
-							$this->ajouterQuantiteBouteille($id_bouteille);
-							break;
-						default:
-							$this->retour['erreur'] = $this->erreur(400);
-							unset($this->retour['data']);
-							break;
-					}
+        // cellier
+        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))
+        {
+            $id_cellier = (int)$requete->url_elements[0];                
+            // bouteille
+            if(isset($requete->url_elements[1])) 
+            {                
+                if(is_numeric($requete->url_elements[1])) 
+                {
+                    $id_bouteille = (int)$requete->url_elements[1];
+                    switch($requete->url_elements[2]) 
+                        {
+                            case 'quantite':
+                                $this->retour["data"] = $requete->url_elements;
+                                $this->ajouterQuantiteBouteille($id_bouteille);
+                                break;
+                            default:
+                                $this->retour['erreur'] = $this->erreur(400);
+                                unset($this->retour['data']);
+                                break;
+                        }
+                } 
+                else
+                {
+                    switch($requete->url_elements[1]) 
+                        {
+                            case 'bouteilles':
+                                $this->retour["data"] = $this->getBouteillesInserer();
+                                break;
+                            default:
+                                $this->retour['erreur'] = $this->erreur(400);
+                                unset($this->retour['data']);
+                                break;
+                        }
+                }
             } 
-            else
+            else 
             {
-                switch($requete->url_elements[0]) 
-                    {
-                        case 'bouteilles':
-                            $this->retour["data"] = $this->getBouteillesInserer();
-                            break;
-                        default:
-                            $this->retour['erreur'] = $this->erreur(400);
-                            unset($this->retour['data']);
-                            break;
-                    }
+                $this->retour["data"] = $this->getBouteillesDansCellier($id_cellier);
             }
-		} 
-		else 
-		{
-			$this->retour["data"] = $this->getBouteilles();
-		}
-        return $this->retour;		
+        } 
+        else 
+        {
+            $this->retour["data"] = $this->getBouteilles();
+        }
+        return $this->retour;	
 	}
 	
 
@@ -69,12 +79,19 @@ class BouteilleControlleur
 	 */
 	public function postAction(Requete $requete)	// Modification
 	{
-        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// l'id de la bouteille 
+        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// l'id du cellier 
         {
-            //$id = (int)$requete->url_elements[0];
-            $this->retour["data"] = $this->modifBouteille($requete->parametres);
+            if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1]))	// l'id de la bouteille 
+            {
+                $this->retour["data"] = $this->modifBouteille($requete->parametres);
+            }
+            else
+            {
+                $this->retour["data"] = $this->modifCellier($requete->parametres);
+            }
         }
-        else{
+        else
+        {
             $this->retour['erreur'] = $this->erreur(400);
             unset($this->retour['data']);
         }
@@ -88,51 +105,43 @@ class BouteilleControlleur
 	 * @param Requete $requete
 	 * @return Mixed Données retournées
 	 */
-	public function putAction(Requete $requete)		//ajout ou modification
+	public function putAction(Requete $requete)		// Ajout
 	{
-        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// Normalement l'id de la bouteille 
+        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// l'id du cellier
         {
-            $id_bouteille = (int)$requete->url_elements[0];
-            
-            if(isset($requete->url_elements[1])) 
+            if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1]))	// l'id de la bouteille 
             {
-                switch($requete->url_elements[1]) 
+                $id_bouteille = (int)$requete->url_elements[1];
+                
+                if(isset($requete->url_elements[2])) 
                 {
-                    case 'quantite':
-                        $this->retour["data"] = $this->ajouterQuantiteBouteille($id_bouteille);
-                        break;
-                    default:
-                        $this->retour['erreur'] = $this->erreur(400);
-                        unset($this->retour['data']);
-                        break;
+                    switch($requete->url_elements[2]) 
+                    {
+                        case 'quantite':
+                            $this->retour["data"] = $this->ajouterQuantiteBouteille($id_bouteille);
+                            break;
+                        default:
+                            $this->retour['erreur'] = $this->erreur(400);
+                            unset($this->retour['data']);
+                            break;
+                    }
+                } 
+                else
+                {
+                    $this->retour['erreur'] = $this->erreur(400);
+                    unset($this->retour['data']);
                 }
             } 
-            else
+            else 
             {
-                $this->retour['erreur'] = $this->erreur(400);
-                unset($this->retour['data']);
+                $this->retour["data"] = $this->ajouterUneBouteille($requete->parametres);
             }
-        } 
+        }
         else 
         {
-            $this->retour["data"] = $this->ajouterUneBouteille($requete->parametres);
+            $this->retour["data"] = $this->ajouterUnCellier($requete->parametres);
         }
 		return $this->retour;
-	}
-
-
-	/**
-	 * Méthode qui augmente de 1 le nombre de bouteilles avec $id au cellier
-     * @access public
-	 * @param int $id de la bouteille
-	 * @return Array Tableau des bouteilles retournée
-	 */
-	public function ajouterQuantiteBouteille($id)
-    {
-		$oBouteille = new Bouteille;
-		$oBouteille->modifierQuantiteBouteilleCellier($id, 1);
-
-		return $this->getBouteilles();
 	}
 
 	
@@ -144,35 +153,52 @@ class BouteilleControlleur
 	 */
 	public function deleteAction(Requete $requete)
 	{
-		if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// L'id de la bouteille 
-			{
-				$id_bouteille = (int)$requete->url_elements[0];
-				
-				if(isset($requete->url_elements[1])) 
-				{
-					switch($requete->url_elements[1]) 
-					{
-						case 'quantite':
-							$this->retour["data"] = $this->boireQuantiteBouteille($id_bouteille);
-							break;
-						default:
-							$this->retour['erreur'] = $this->erreur(400);
-							unset($this->retour['data']);
-							break;
-					}
-				} 
-				else
-				{
-					$this->retour['erreur'] = $this->erreur(400);
-					unset($this->retour['data']);
-				}
-			} 
-			else 
-			{
-				$this->retour['erreur'] = $this->erreur(400);
-				unset($this->retour['data']);
-			}
-		return $this->retour;
+        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// l'id du cellier
+        {
+            $id_cellier = (int)$requete->url_elements[0];
+            if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1]))	// l'id de la bouteille 
+            {
+                $id_bouteille = (int)$requete->url_elements[1];
+                
+                if(isset($requete->url_elements[2])) 
+                {
+                    switch($requete->url_elements[2]) 
+                    {
+                        case 'quantite':
+                            $this->retour["data"] = $this->boireQuantiteBouteille($id_bouteille);
+                            break;
+                        default:
+                            $this->retour['erreur'] = $this->erreur(400);
+                            unset($this->retour['data']);
+                            break;
+                    }
+                } 
+                else
+                {
+                    $this->retour['erreur'] = $this->erreur(400);
+                    unset($this->retour['data']);
+                }
+            } 
+            else 
+            {
+                $this->retour["data"] = $this->effacerUnCellier($id_cellier);
+            }
+        }
+        return $this->retour;
+	}
+
+    /**
+	 * Méthode qui augmente de 1 le nombre de bouteilles avec $id au cellier
+     * @access public
+	 * @param int $id de la bouteille
+	 * @return Array Tableau des bouteilles retournée
+	 */
+	public function ajouterQuantiteBouteille($id)
+    {
+		$oBouteille = new Bouteille;
+		$oBouteille->modifierQuantiteBouteilleCellier($id, 1);
+
+		return $this->getBouteilles();
 	}
 
 
@@ -205,7 +231,37 @@ class BouteilleControlleur
 		$res = $oBouteille->modifBouteille($data);
 		return $res; 
 	}
+
+    
+    /**
+	 * Modifie les informations du cellier
+	 * @access private
+	 * @param Array Les informations de la bouteille
+	 * @return int $id Identifiant de la bouteille dans le cellier à modifier
+	 */	
+	private function modifCellier($data)
+	{
+		$res = Array();
+		$oBouteille = new Cellier();
+		
+		$res = $oBouteille->modifCellier($data);
+		return $res; 
+	}
 	
+    /**
+	 * Ajouter un cellier
+	 * @access private
+	 * @param Array Les informations du cellier
+	 * @return int $id_cellier Identifiant du nouveau cellier
+	 */	
+	private function ajouterUnCellier($data)
+	{
+		$res = Array();
+		$oCellier = new Cellier();
+		$res = $oCellier->ajouterCellier($data);
+		return $res; 
+	}
+
 
     /**
 	 * Ajouter une bouteille au cellier
@@ -223,22 +279,7 @@ class BouteilleControlleur
 
 	
     /**
-	 * Afficher des erreurs
-	 * @access private
-	 * @param String Le code d'erreur
-	 * @return Array Les message d'erreurs
-	 */	
-	private function erreur($code, $data="")
-	{
-		//header('HTTP/1.1 400 Bad Request');
-		http_response_code($code);
-
-		return array("message"=>"Erreur de requete", "code"=>$code);
-	}
-
-	
-    /**
-	 * Retourne les informations des bouteilles au cellier	 
+	 * Retourne les informations des bouteilles dans tout les celliers	 
      * @access private
 	 * @return Array Tableau de toutes les bouteilles au cellier
 	 */	
@@ -265,4 +306,52 @@ class BouteilleControlleur
 		
 		return $res; 
 	}
+
+    
+    /**
+	 * Méthode qui retourne les informations des bouteilles au cellier avec id_cellier
+     * @access public
+	 * @param int $id_cellier du cellier
+	 * @return Array Tableau des bouteilles retournée
+	 */
+    private function getBouteillesDansCellier($id_cellier) 
+    {
+        $res = Array();
+		$oCellier = new Cellier();
+		$res = $oCellier->getBouteillesCellier($id_cellier);
+		
+		return $res; 
+    }
+
+
+    /**
+	 * Effacer le cellier $id_cellier
+	 * @param int $id_cellier Identifiant du cellier
+	 * @return boolean Succès ou échec
+	 * @access private
+	 */	
+	private function effacerUnCellier($id_cellier)
+	{
+		$res = Array();
+		$oCellier = new Cellier();
+		
+		$res = $oCellier->effacerCellier($id_cellier);
+		return $res; 
+	}
+
+    	
+    /**
+	 * Afficher des erreurs
+	 * @access private
+	 * @param String Le code d'erreur
+	 * @return Array Les message d'erreurs
+	 */	
+	private function erreur($code, $data="")
+	{
+		//header('HTTP/1.1 400 Bad Request');
+		http_response_code($code);
+
+		return array("message"=>"Erreur de requete", "code"=>$code);
+	}
+
 }
