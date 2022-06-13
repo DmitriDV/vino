@@ -40,8 +40,8 @@ class BouteilleControlleur
                                 $this->retour["data"] = $requete->url_elements;
                                 $this->ajouterQuantiteBouteille($id_bouteille);
                                 break;
-                            case 'bouteilles':
-                                $this->retour["data"] = $this->getBouteillesInserer();
+                            case 'bouteilles': 
+                                $this->retour["data"] = $this->getBouteillesInserer(); //SAQ
                                 break;   
                             default:
                                 $this->retour['erreur'] = $this->erreur(400);
