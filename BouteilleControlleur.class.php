@@ -40,9 +40,6 @@ class BouteilleControlleur
                                 $this->retour["data"] = $requete->url_elements;
                                 $this->ajouterQuantiteBouteille($id_bouteille);
                                 break;
-                            case 'bouteilles': 
-                                $this->retour["data"] = $this->getBouteillesInserer(); //SAQ
-                                break;   
                             default:
                                 $this->retour['erreur'] = $this->erreur(400);
                                 unset($this->retour['data']);
@@ -64,6 +61,19 @@ class BouteilleControlleur
                 $this->retour["data"] = $this->getBouteillesDansCellier($id_cellier);
             }
         } 
+        else if (isset($requete->url_elements[0]))
+        {
+            switch($requete->url_elements[0]) 
+            {
+                case 'bouteilles': 
+                    $this->retour["data"] = $this->getBouteillesInserer(); //SAQ
+                    break;   
+                default:
+                    $this->retour['erreur'] = $this->erreur(400);
+                    unset($this->retour['data']);
+                    break;
+            }
+        }
         else 
         {
             $this->retour["data"] = $this->getBouteilles();
