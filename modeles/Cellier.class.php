@@ -45,7 +45,7 @@
                     b.id_pays,
                     t.type,
                     u.id as usager_id_usager,
-                    u.nom,
+                    u.nom as usager_nom,
                     u.courriel,
                     u.phone,
                     u.adresse as usager_adresse
@@ -107,7 +107,7 @@
                     b.id_pays,
                     t.type,
                     u.id as usager_id_usager,
-                    u.nom,
+                    u.nom as usager_nom,
                     u.courriel,
                     u.phone,
                     u.adresse as usager_adresse

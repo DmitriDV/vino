@@ -63,15 +63,17 @@ class Bouteille extends Modele {
                     b.id_pays,
                     t.type,
                     u.id as usager_id_usager,
-                    u.nom,
+                    u.nom as usager_nom,
                     u.courriel,
                     u.phone,
-                    u.adresse as usager_adresse
+                    u.adresse as usager_adresse,
+                    p.nom as pays
                     from vino__cellier_bouteille cb
                     INNER JOIN vino__cellier c ON cb.id_cellier = c.id
                     INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
                     INNER JOIN vino__type t ON b.id_type = t.id
                     INNER JOIN vino__usager u ON c.id_usager = u.id
+                    INNER JOIN vino__pays p ON b.id_pays = p.id
                     '; 
 
 		if(($res = $this->_db->query($requete)) ==	 true)
