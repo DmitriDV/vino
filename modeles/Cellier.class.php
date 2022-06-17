@@ -29,6 +29,7 @@
                     cb.prix, 
                     cb.millesime, 
                     cb.garde_jusqua,
+                    c.id as cellier_id_cellier,
                     c.nom, 
                     c.adresse as cellier_adresse,
                     c.id_usager,
@@ -48,12 +49,14 @@
                     u.nom as usager_nom,
                     u.courriel,
                     u.phone,
-                    u.adresse as usager_adresse
+                    u.adresse as usager_adresse,
+                    v.nom as ville_nom
                     from vino__cellier_bouteille cb
                     INNER JOIN vino__cellier c ON cb.id_cellier = c.id
                     INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
                     INNER JOIN vino__type t ON b.id_type = t.id
                     INNER JOIN vino__usager u ON c.id_usager = u.id
+                    INNER JOIN vino__ville v ON u.id_ville = v.id
                     WHERE id_cellier = '. $id .'
                     '; 
 		if(($res = $this->_db->query($requete)) ==	 true)
@@ -137,6 +140,51 @@
 		}
 		return $rows;
 	}
+
+    
+	/**
+	 * Cette méthode annonce les celliers d'usager.
+	 * @access public
+	 * @return Array $data Tableau des données représentants la bouteille.
+	 */
+	public function getCelliersParUsager($id)
+	{
+		$rows = Array();
+		$requete ='SELECT 
+                    c.id as cellier_id_cellier,
+                    c.nom, 
+                    c.adresse as cellier_adresse,
+                    c.id_usager,
+                    u.id as usager_id_usager,
+                    u.nom as usager_nom,
+                    u.courriel,
+                    u.phone,
+                    u.adresse as usager_adresse,
+                    v.nom as ville_nom
+                    FROM vino__cellier c
+                    INNER JOIN vino__usager u ON c.id_usager = u.id
+                    INNER JOIN vino__ville v ON u.id_ville = v.id
+                    WHERE id_usager = '. $id .'
+                    '; 
+		if(($res = $this->_db->query($requete)) ==	 true)
+		{
+			if($res->num_rows)
+			{
+				while($row = $res->fetch_assoc())
+				{
+					$row['nom'] = trim(utf8_encode($row['nom']));
+					$rows[] = $row;
+				}
+			}
+		}
+		else 
+		{
+			throw new Exception("Erreur de requête sur la base de donnée", 1);
+			//$this->_db->error;
+		}
+		return $rows;
+	}
+
 
 
 	/**
