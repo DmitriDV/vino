@@ -99,6 +99,7 @@ class Usager extends Modele {
                     u.courriel,
                     u.phone,
                     u.adresse as usager_adresse,
+                    u.image_url,
                     v.nom
                     FROM vino__usager u
                     INNER JOIN vino__ville v ON u.id_ville = v.id

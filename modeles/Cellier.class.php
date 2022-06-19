@@ -18,7 +18,7 @@
 	 * @access public
 	 * @return Array $data Tableau des données représentants la liste des bouteilles.
 	 */
-	public function getBouteillesCellier($id)
+	public function getBouteillesDansCeCellier($id)
 	{
 		$rows = Array();
 		$requete ='SELECT 
