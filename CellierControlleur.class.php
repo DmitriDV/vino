@@ -41,7 +41,6 @@ class CellierControlleur
                             $this->retour['erreur'] = $this->erreur(400);
                             unset($this->retour['data']);
                         }
-                        
                     default:
                         $this->retour['erreur'] = $this->erreur(400);
                         unset($this->retour['data']);
@@ -55,6 +54,138 @@ class CellierControlleur
         return $this->retour;	
 	}
 	
+    /**
+	 * Méthode qui gère les action en PUT
+     * @access public
+	 * @param Requete $requete
+	 * @return Mixed Données retournées
+	 */
+	//public function putAction(Requete $requete)		// Modification
+    public function putAction(Requete $requete)		// Modification
+	{
+        // cellier
+        if(isset($requete->url_elements[0]) && !is_numeric($requete->url_elements[0]))
+        {   
+            /** id_usager par default */
+            $id_usager = 1;
+            switch($requete->url_elements[0]) 
+            {                    
+                case 'cellier':
+                    if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1])) // id_cellier
+                    {
+                        $id_cellier = (int)$requete->url_elements[1];
+                        if(isset($requete->url_elements[2]) && is_numeric($requete->url_elements[2])) // id_bouteille
+                        {
+                            $id_bouteille = (int)$requete->url_elements[2];
+                            if(isset($requete->url_elements[3]) && is_numeric($requete->url_elements[3])) // id_achats
+                            {
+                                $id_achats = (int)$requete->url_elements[3];
+                                if(isset($requete->url_elements[4]) && $requete->url_elements[4] === 'quantite')
+                                {
+                                    $this->retour["data"] = $this->ajouterQuantiteBouteille($id_cellier, $id_bouteille, $id_achats, $id_usager);
+                                    break;
+                                }
+                                else
+                                {
+                                    $this->retour['erreur'] = $this->erreur(401);
+                                    unset($this->retour['data']);
+                                } 
+                            }
+                            else
+                            {
+                                $this->retour['erreur'] = $this->erreur(402);
+                                unset($this->retour['data']);
+                            }
+                        }
+                        else
+                        {
+                            $this->retour['erreur'] = $this->erreur(403);
+                            unset($this->retour['data']);
+                        }
+                    }
+                    else
+                    {
+                        $this->retour['erreur'] = $this->erreur(404);
+                        unset($this->retour['data']);
+                    }
+                default:
+                    $this->retour['erreur'] = $this->erreur(405);
+                    unset($this->retour['data']);
+                    break;
+            }                
+        } 
+        else
+        {
+            $this->retour['erreur'] = $this->erreur(400);
+        }
+        return $this->retour;	
+	}
+
+    /**
+	 * Méthode qui gère les action en DELETE
+     * @access public
+	 * @param Requete $oReq
+	 * @return Mixed Données retournées
+	 */
+	public function deleteAction(Requete $requete)
+	{
+        // cellier
+        if(isset($requete->url_elements[0]) && !is_numeric($requete->url_elements[0]))
+        {   
+            /** id_usager par default */
+            $id_usager = 1;
+            switch($requete->url_elements[0]) 
+            {                    
+                case 'cellier':
+                    if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1])) // id_cellier
+                    {
+                        $id_cellier = (int)$requete->url_elements[1];
+                        if(isset($requete->url_elements[2]) && is_numeric($requete->url_elements[2])) // id_bouteille
+                        {
+                            $id_bouteille = (int)$requete->url_elements[2];
+                            if(isset($requete->url_elements[3]) && is_numeric($requete->url_elements[3])) // id_achats
+                            {
+                                $id_achats = (int)$requete->url_elements[3];
+                                if(isset($requete->url_elements[4]) && $requete->url_elements[4] === 'quantite')
+                                {
+                                    $this->retour["data"] = $this->boireQuantiteBouteille($id_cellier, $id_bouteille, $id_achats, $id_usager);
+                                    break;
+                                }
+                                else
+                                {
+                                    $this->retour['erreur'] = $this->erreur(401);
+                                    unset($this->retour['data']);
+                                } 
+                            }
+                            else
+                            {
+                                $this->retour['erreur'] = $this->erreur(402);
+                                unset($this->retour['data']);
+                            }
+                        }
+                        else
+                        {
+                            $this->retour['erreur'] = $this->erreur(403);
+                            unset($this->retour['data']);
+                        }
+                    }
+                    else
+                    {
+                        $this->retour['erreur'] = $this->erreur(404);
+                        unset($this->retour['data']);
+                    }
+                default:
+                    $this->retour['erreur'] = $this->erreur(405);
+                    unset($this->retour['data']);
+                    break;
+            }                
+        } 
+        else
+        {
+            $this->retour['erreur'] = $this->erreur(406);
+        }
+        return $this->retour;	
+	}
 
 	/**
 	 * Méthode qui retourne les bouteilles dans le cellier avec id_cellier et id_usager
@@ -63,15 +194,44 @@ class CellierControlleur
      * @param int $id_bouteille du cellier
 	 * @return Array Tableau d'information sur la bouteille retournée
 	 */
-    private function getBouteillesDansCeCellier($id_cellier) 
+    private function getBouteillesDansCeCellier($id_cellier, $id_usager) 
     {
         $res = Array();
 		$oCellier = new Cellier();
-		$res = $oCellier->getBouteillesDansCeCellier($id_cellier);
+		$res = $oCellier->getBouteillesDansCeCellier($id_cellier, $id_usager);
 		
 		return $res; 
     }
 
+    /** Fonctions pour les actions PUT */
+    /**
+	 * Méthode qui augmente de 1 le nombre de bouteilles avec $id au cellier
+     * @access public
+	 * @param int $id de la bouteille
+	 * @return Array Tableau des bouteilles retournée
+	 */
+	public function ajouterQuantiteBouteille($id_cellier, $id_bouteille, $id_achats, $id_usager)
+    {
+        $oCellier = new Cellier();
+	    $oCellier->modifierQuantiteBouteilleCellier($id_cellier, $id_bouteille, $id_achats, $id_usager, 1);
+        
+        return $this->getBouteillesDansCeCellier($id_cellier, $id_usager);
+    }
+
+    /** Fonctions pour les actions  DELETE */
+    /**
+	 * Méthode qui réduit de 1 le nombre de bouteilles avec $id au cellier 
+     * @access public
+	 * @param int $id de la bouteille
+	 * @return Array Tableau des bouteilles retournée
+	 */
+	public function boireQuantiteBouteille($id_cellier, $id_bouteille, $id_achats, $id_usager)
+    {
+		$oCellier = new Cellier;
+		$oCellier->modifierQuantiteBouteilleCellier($id_cellier, $id_bouteille, $id_achats, $id_usager, -1);
+		
+		return $this->getBouteillesDansCeCellier($id_cellier, $id_usager);
+	}
     	
     /**
 	 * Afficher des erreurs

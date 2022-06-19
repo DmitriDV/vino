@@ -18,8 +18,9 @@
 	 * @access public
 	 * @return Array $data Tableau des données représentants la liste des bouteilles.
 	 */
-	public function getBouteillesDansCeCellier($id)
+	public function getBouteillesDansCeCellier($id_cellier, $id_usager)
 	{
+        $id_usager = 1;
 		$rows = Array();
 		$requete ='SELECT 
                     cb.id_cellier,
@@ -44,6 +45,7 @@
                     b.format, 
                     b.id_type, 
                     b.id_pays,
+                    p.nom as pays_nom,
                     t.type,
                     u.id as usager_id_usager,
                     u.nom as usager_nom,
@@ -54,10 +56,12 @@
                     from vino__cellier_bouteille cb
                     INNER JOIN vino__cellier c ON cb.id_cellier = c.id
                     INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
+                    INNER JOIN vino__pays p ON b.id_pays = p.id
                     INNER JOIN vino__type t ON b.id_type = t.id
                     INNER JOIN vino__usager u ON c.id_usager = u.id
                     INNER JOIN vino__ville v ON u.id_ville = v.id
-                    WHERE id_cellier = '. $id .'
+                    WHERE id_cellier = '. $id_cellier .'
+                    AND u.id = '. $id_usager .'
                     '; 
 		if(($res = $this->_db->query($requete)) ==	 true)
 		{
@@ -78,68 +82,140 @@
 		return $rows;
 	}
 	
-	    /**
-	 * Cette méthode annonce une bouteille avec id_bouteille au cellier avec id_cellier.
+    /**
+	 * Cette méthode modifie le nombre de bouteilles au cellier
 	 * @access public
-	 * @return Array $data Tableau des données représentants la bouteille.
+	 * @param int $id L'id de la bouteille
+	 * @param int $nombre Un identifiant qui permet de déterminer l'action - augmenter la quantité de 1 ou diminuer de 1 
+	 * @return Boolean Succès ou échec de l'ajout.
 	 */
-	public function getBouteilleDansCellier($id_bouteille, $id_cellier)
+	public function modifierQuantiteBouteilleCellier($id_cellier, $id_bouteille, $id_achats, $id_usager, $nombre) //$id_cellier??? et $id_bouteille
 	{
-		$rows = Array();
-		$requete ='SELECT 
-                    cb.id_cellier,
-                    cb.id_bouteille, 
-                    cb.id_achats, 
-                    cb.quantite,
-                    cb.prix, 
-                    cb.millesime, 
-                    cb.garde_jusqua,
-                    c.nom, 
-                    c.adresse as cellier_adresse,
-                    c.id_usager,
-                    b.id as bouteille_id_bouteille,
-                    b.nom, 
-                    b.image, 
-                    b.code_saq,
-                    b.description,
-                    b.prix_saq,
-                    b.url_saq,
-                    b.url_img,
-                    b.format, 
-                    b.id_type, 
-                    b.id_pays,
-                    t.type,
-                    u.id as usager_id_usager,
-                    u.nom as usager_nom,
-                    u.courriel,
-                    u.phone,
-                    u.adresse as usager_adresse
-                    from vino__cellier_bouteille cb
+        $qte = $this->getQuantite($id_cellier, $id_bouteille, $id_achats, $id_usager);	
+		if($qte >= 0 && $nombre == -1){
+			$requete = "UPDATE vino__cellier_bouteille
+                        SET quantite = GREATEST(quantite + ". $nombre. ", 0)
+                        WHERE id_cellier = ".$id_cellier."
+                        AND id_bouteille = ".$id_bouteille."
+                        AND id_achats = ".$id_achats."
+                        ;";
+                      
+			$res = $this->_db->query($requete);
+			return $res;
+
+		} else if($qte >= 0 && $nombre == 1){
+			$requete = "UPDATE vino__cellier_bouteille
+                        SET quantite = GREATEST(quantite + ". $nombre. ", 0)
+                        WHERE id_cellier = ".$id_cellier."
+                        AND id_bouteille = ".$id_bouteille."
+                        AND id_achats = ".$id_achats."
+                        ;";
+
+			$res = $this->_db->query($requete);
+			return $res;
+		}
+		return 0;
+	}
+
+    /**
+	 * Cette méthode Obtient le nombre de bouteilles avec l'id au cellier
+	 * @access public
+	 * @param int $id L'id de la bouteille.
+	 * @return Number Le quantité de bouteilles.
+	 */
+	public function getQuantite($id_cellier, $id_bouteille, $id_achats, $id_usager){
+       	$requete = "SELECT cb.quantite FROM vino__cellier_bouteille cb
                     INNER JOIN vino__cellier c ON cb.id_cellier = c.id
-                    INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
-                    INNER JOIN vino__type t ON b.id_type = t.id
-                    INNER JOIN vino__usager u ON c.id_usager = u.id
-                    WHERE cb.id_cellier = '. $id_cellier .'
-                    AND cb.id_bouteille = '. $id_bouteille .'
-                    '; 
-		if(($res = $this->_db->query($requete)) ==	 true)
+                    WHERE cb.id_cellier = ".$id_cellier."
+                    AND cb.id_bouteille = ".$id_bouteille."
+                    AND cb.id_achats = ".$id_achats."
+                    AND c.id_usager = ".$id_usager.";";
+        if(($res = $this->_db->query($requete)) ==	 true)
 		{
-			if($res->num_rows)
-			{
-				while($row = $res->fetch_assoc())
-				{
-					$row['nom'] = trim(utf8_encode($row['nom']));
-					$rows[] = $row;
-				}
-			}
+            $res = $this->_db->query($requete)->fetch_object()->quantite;
 		}
 		else 
 		{
 			throw new Exception("Erreur de requête sur la base de donnée", 1);
 			//$this->_db->error;
 		}
-		return $rows;
+        
+		return $res;
+       
+
+
+        //$requete = "SELECT cb.quantite FROM vino__cellier_bouteille cb
+        //            INNER JOIN vino__cellier c ON cb.id_cellier = c.id
+        //            WHERE cb.id_cellier = ".$id_cellier."
+        //            AND cb.id_bouteille = ".$id_bouteille."
+        //            AND cb.id_achats = ".$id_achats."
+        //            AND c.id_usager = ".$id_usager.";";
+        //return $this->_db->query($requete);
 	}
+
+
+    // /**
+	//  * Cette méthode annonce une bouteille avec id_bouteille au cellier avec id_cellier.
+	//  * @access public
+	//  * @return Array $data Tableau des données représentants la bouteille.
+	//  */
+	// public function getBouteilleDansCellier($id_bouteille, $id_cellier)
+	// {
+	// 	$rows = Array();
+	// 	$requete ='SELECT 
+    //                 cb.id_cellier,
+    //                 cb.id_bouteille, 
+    //                 cb.id_achats, 
+    //                 cb.quantite,
+    //                 cb.prix, 
+    //                 cb.millesime, 
+    //                 cb.garde_jusqua,
+    //                 c.nom, 
+    //                 c.adresse as cellier_adresse,
+    //                 c.id_usager,
+    //                 b.id as bouteille_id_bouteille,
+    //                 b.nom, 
+    //                 b.image, 
+    //                 b.code_saq,
+    //                 b.description,
+    //                 b.prix_saq,
+    //                 b.url_saq,
+    //                 b.url_img,
+    //                 b.format, 
+    //                 b.id_type, 
+    //                 b.id_pays,
+    //                 t.type,
+    //                 u.id as usager_id_usager,
+    //                 u.nom as usager_nom,
+    //                 u.courriel,
+    //                 u.phone,
+    //                 u.adresse as usager_adresse
+    //                 from vino__cellier_bouteille cb
+    //                 INNER JOIN vino__cellier c ON cb.id_cellier = c.id
+    //                 INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
+    //                 INNER JOIN vino__type t ON b.id_type = t.id
+    //                 INNER JOIN vino__usager u ON c.id_usager = u.id
+    //                 WHERE cb.id_cellier = '. $id_cellier .'
+    //                 AND cb.id_bouteille = '. $id_bouteille .'
+    //                 '; 
+	// 	if(($res = $this->_db->query($requete)) ==	 true)
+	// 	{
+	// 		if($res->num_rows)
+	// 		{
+	// 			while($row = $res->fetch_assoc())
+	// 			{
+	// 				$row['nom'] = trim(utf8_encode($row['nom']));
+	// 				$rows[] = $row;
+	// 			}
+	// 		}
+	// 	}
+	// 	else 
+	// 	{
+	// 		throw new Exception("Erreur de requête sur la base de donnée", 1);
+	// 		//$this->_db->error;
+	// 	}
+	// 	return $rows;
+	// }
 
     
 	/**
