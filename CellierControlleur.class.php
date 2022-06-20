@@ -62,61 +62,55 @@ class CellierControlleur
 	 */
 	//public function putAction(Requete $requete)		// Modification
     public function putAction(Requete $requete)		// Modification
-	{
-        // cellier
-        if(isset($requete->url_elements[0]) && !is_numeric($requete->url_elements[0]))
-        {   
-            /** id_usager par default */
+	{   
+        /** id_usager par default */
             $id_usager = 1;
-            switch($requete->url_elements[0]) 
-            {                    
-                case 'cellier':
-                    if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1])) // id_cellier
+        // cellier
+        if(isset($requete->url_elements[0]) && ($requete->url_elements[0] === 'cellier'))
+        {   
+            if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1])) // id_cellier
+            {
+                $id_cellier = (int)$requete->url_elements[1];
+                if(isset($requete->url_elements[2]) && is_numeric($requete->url_elements[2])) // id_bouteille
+                {
+                    $id_bouteille = (int)$requete->url_elements[2];
+                    if(isset($requete->url_elements[3]) && is_numeric($requete->url_elements[3])) // id_achats
                     {
-                        $id_cellier = (int)$requete->url_elements[1];
-                        if(isset($requete->url_elements[2]) && is_numeric($requete->url_elements[2])) // id_bouteille
+                        $id_achats = (int)$requete->url_elements[3];
+                        if(isset($requete->url_elements[4]) && $requete->url_elements[4] === 'quantite')
                         {
-                            $id_bouteille = (int)$requete->url_elements[2];
-                            if(isset($requete->url_elements[3]) && is_numeric($requete->url_elements[3])) // id_achats
-                            {
-                                $id_achats = (int)$requete->url_elements[3];
-                                if(isset($requete->url_elements[4]) && $requete->url_elements[4] === 'quantite')
-                                {
-                                    $this->retour["data"] = $this->ajouterQuantiteBouteille($id_cellier, $id_bouteille, $id_achats, $id_usager);
-                                    break;
-                                }
-                                else
-                                {
-                                    $this->retour['erreur'] = $this->erreur(401);
-                                    unset($this->retour['data']);
-                                } 
-                            }
-                            else
-                            {
-                                $this->retour['erreur'] = $this->erreur(402);
-                                unset($this->retour['data']);
-                            }
+                            $this->retour["data"] = $this->ajouterQuantiteBouteille($id_cellier, $id_bouteille, $id_achats, $id_usager);
+                            
                         }
                         else
                         {
-                            $this->retour['erreur'] = $this->erreur(403);
+                            $this->retour['erreur'] = $this->erreur(401);
                             unset($this->retour['data']);
-                        }
+                        } 
                     }
                     else
                     {
-                        $this->retour['erreur'] = $this->erreur(404);
+                        $this->retour['erreur'] = $this->erreur(402);
                         unset($this->retour['data']);
                     }
-                default:
-                    $this->retour['erreur'] = $this->erreur(405);
-                    unset($this->retour['data']);
-                    break;
-            }                
-        } 
+                }
+                else if(isset($requete->url_elements[2]) && $requete->url_elements[2] === 'ajout')
+                {
+                    $this->retour["data"] = $this->ajouterUneBouteille($requete->parametres, $id_usager);     
+
+                }
+            }
+            else 
+            {
+                $this->retour['erreur'] = $this->erreur(403);
+                unset($this->retour['data']);
+            }
+
+        }
         else
         {
-            $this->retour['erreur'] = $this->erreur(400);
+            //$this->retour["data"] = $this->ajouterUneBouteille($requete->parametres, $id_usager);
+            $this->retour['erreur'] = $this->erreur(406);
         }
         return $this->retour;	
 	}
@@ -204,6 +198,21 @@ class CellierControlleur
     }
 
     /** Fonctions pour les actions PUT */
+
+    /**
+	 * Ajouter une bouteille au cellier
+	 * @access private
+	 * @param Array Les informations de la bouteille
+	 * @return int $id_bouteille Identifiant de la nouvelle bouteille
+	 */	
+	private function ajouterUneBouteille($data, $id_usager)
+	{
+		$res = Array();
+		$oCellier = new Cellier();
+		$res = $oCellier->ajouterBouteilleCellier($data, $id_usager);
+		return $res; 
+	}
+
     /**
 	 * Méthode qui augmente de 1 le nombre de bouteilles avec $id au cellier
      * @access public

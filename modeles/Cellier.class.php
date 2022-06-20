@@ -82,6 +82,34 @@
 		return $rows;
 	}
 	
+	/**
+	 * Cette méthode ajoute une ou des bouteilles au cellier
+	 * @access public
+	 * @param Array $data Tableau des données représentants la bouteille
+	 * @return int Renvoie l'id de la bouteille ajoutée
+	 */
+	public function ajouterBouteilleCellier($data, $id_usager)
+	{
+        if (is_array($data) || is_object($data)) 
+        {    
+            if(extract($data) > 0)
+            {
+                $requete = "INSERT INTO vino__achats(`date_achat`) VALUES ('".$date_achat."')";
+                $this->_db->query($requete);
+                $id_achats = $this->_db->insert_id;
+
+                $requete = "INSERT INTO vino__cellier_bouteille(`id_cellier`, `id_bouteille`, `id_achats`, `quantite`, `prix`, `millesime`, `garde_jusqua`) VALUES ('".$id_cellier. "','".$id_bouteille. "','". $id_achats. "','". $quantite. "','". $prix."','". $millesime."','". $garde_jusqua."')";
+                $this->_db->query($requete);
+                                
+                $requete = "INSERT INTO vino__notes(`note`, `id_usager`, `cellier_bouteille_id_cellier`, `cellier_bouteille_id_bouteille`, `cellier_bouteille_id_achats` ) VALUES ('".$notes. "','". $id_usager. "','". $id_cellier."','". $id_bouteille."','". $id_achats. "')";
+                $this->_db->query($requete);
+            }
+            return ($this->_db->insert_id ? $this->_db->insert_id : $requete);
+        } else {
+            echo "Une erreur s'est produite.";
+        }
+	}
+
     /**
 	 * Cette méthode modifie le nombre de bouteilles au cellier
 	 * @access public

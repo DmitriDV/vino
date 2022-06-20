@@ -280,13 +280,13 @@ class BouteilleControlleur
 	 * @param Array Les informations de la bouteille
 	 * @return int $id_bouteille Identifiant de la nouvelle bouteille
 	 */	
-	private function ajouterUneBouteille($data)
-	{
-		$res = Array();
-		$oBouteille = new Bouteille();
-		$res = $oBouteille->ajouterBouteilleCellier($data);
-		return $res; 
-	}
+	//private function ajouterUneBouteille($data)
+	//{
+	//	$res = Array();
+	//	$oBouteille = new Bouteille();
+	//	$res = $oBouteille->ajouterBouteilleCellier($data);
+	//	return $res; 
+	//}
 
 	
     /**

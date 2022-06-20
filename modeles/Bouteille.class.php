@@ -137,21 +137,21 @@ class Bouteille extends Modele {
 	 * @param Array $data Tableau des données représentants la bouteille
 	 * @return int Renvoie l'id de la bouteille ajoutée
 	 */
-	public function ajouterBouteilleCellier($data)
-	{
-        if (is_array($data) || is_object($data)) 
-        {    
-            if(extract($data) > 0)
-            {
-                $requete = "INSERT INTO vino__cellier(`id_bouteille`, `date_achat`, `garde_jusqua`, `notes`, `prix`, `quantite`, `millesime`) VALUES ('".$id_bouteille. "','". $date_achat. "','". $garde_jusqua. "','".$notes."','". $prix."','". $quantite."','". $millesime."')";
+	// public function ajouterBouteilleCellier($data)
+	// {
+    //     if (is_array($data) || is_object($data)) 
+    //     {    
+    //         if(extract($data) > 0)
+    //         {
+    //             $requete = "INSERT INTO vino__cellier(`id_bouteille`, `date_achat`, `garde_jusqua`, `notes`, `prix`, `quantite`, `millesime`) VALUES ('".$id_bouteille. "','". $date_achat. "','". $garde_jusqua. "','".$notes."','". $prix."','". $quantite."','". $millesime."')";
 
-                $this->_db->query($requete);
-            }
-            return ($this->_db->insert_id ? $this->_db->insert_id : $requete);
-        } else {
-            echo "Une erreur s'est produite.";
-        }
-	}
+    //             $this->_db->query($requete);
+    //         }
+    //         return ($this->_db->insert_id ? $this->_db->insert_id : $requete);
+    //     } else {
+    //         echo "Une erreur s'est produite.";
+    //     }
+	// }
 
     /**
 	 * Cette méthode modifie le nombre de bouteilles au cellier
