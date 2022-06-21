@@ -20,8 +20,7 @@
 	 */
 	public function getBouteillesDansCeCellier($id_cellier, $id_usager)
 	{
-        $id_usager = 1;
-		$rows = Array();
+        $rows = Array();
 		$requete ='SELECT 
                     cb.id_cellier,
                     cb.id_bouteille, 
@@ -110,6 +109,8 @@
         }
 	}
 
+
+
     /**
 	 * Cette méthode modifie le nombre de bouteilles au cellier
 	 * @access public
@@ -180,71 +181,6 @@
         //            AND c.id_usager = ".$id_usager.";";
         //return $this->_db->query($requete);
 	}
-
-
-    // /**
-	//  * Cette méthode annonce une bouteille avec id_bouteille au cellier avec id_cellier.
-	//  * @access public
-	//  * @return Array $data Tableau des données représentants la bouteille.
-	//  */
-	// public function getBouteilleDansCellier($id_bouteille, $id_cellier)
-	// {
-	// 	$rows = Array();
-	// 	$requete ='SELECT 
-    //                 cb.id_cellier,
-    //                 cb.id_bouteille, 
-    //                 cb.id_achats, 
-    //                 cb.quantite,
-    //                 cb.prix, 
-    //                 cb.millesime, 
-    //                 cb.garde_jusqua,
-    //                 c.nom, 
-    //                 c.adresse as cellier_adresse,
-    //                 c.id_usager,
-    //                 b.id as bouteille_id_bouteille,
-    //                 b.nom, 
-    //                 b.image, 
-    //                 b.code_saq,
-    //                 b.description,
-    //                 b.prix_saq,
-    //                 b.url_saq,
-    //                 b.url_img,
-    //                 b.format, 
-    //                 b.id_type, 
-    //                 b.id_pays,
-    //                 t.type,
-    //                 u.id as usager_id_usager,
-    //                 u.nom as usager_nom,
-    //                 u.courriel,
-    //                 u.phone,
-    //                 u.adresse as usager_adresse
-    //                 from vino__cellier_bouteille cb
-    //                 INNER JOIN vino__cellier c ON cb.id_cellier = c.id
-    //                 INNER JOIN vino__bouteille b ON cb.id_bouteille = b.id
-    //                 INNER JOIN vino__type t ON b.id_type = t.id
-    //                 INNER JOIN vino__usager u ON c.id_usager = u.id
-    //                 WHERE cb.id_cellier = '. $id_cellier .'
-    //                 AND cb.id_bouteille = '. $id_bouteille .'
-    //                 '; 
-	// 	if(($res = $this->_db->query($requete)) ==	 true)
-	// 	{
-	// 		if($res->num_rows)
-	// 		{
-	// 			while($row = $res->fetch_assoc())
-	// 			{
-	// 				$row['nom'] = trim(utf8_encode($row['nom']));
-	// 				$rows[] = $row;
-	// 			}
-	// 		}
-	// 	}
-	// 	else 
-	// 	{
-	// 		throw new Exception("Erreur de requête sur la base de donnée", 1);
-	// 		//$this->_db->error;
-	// 	}
-	// 	return $rows;
-	// }
-
     
 	/**
 	 * Cette méthode annonce les celliers d'usager.
@@ -253,6 +189,7 @@
 	 */
 	public function getCelliersParUsager($id)
 	{
+        
 		$rows = Array();
 		$requete ='SELECT 
                     c.id as cellier_id_cellier,
@@ -293,7 +230,7 @@
 
 	/**
      * @Crossorigin
-	 * Cette méthode ajoute une ou des bouteilles au cellier
+	 * Cette méthode ajoute un cellier
 	 * @access public
 	 * @param Array $data Tableau des données représentants la bouteille
 	 * @return int Renvoie l'id de la bouteille ajoutée
@@ -304,7 +241,7 @@
         {    
             if(extract($data) > 0)
             {
-                $requete = "INSERT INTO vino__cellier(`nom`, `adresse`) VALUES ('".$nom. "','". $adresse. "')";
+                $requete = "INSERT INTO vino__cellier(`nom`, `adresse`, `id_usager`) VALUES ('".$nom."','".$adresse. "','". $id_usager."')";
 
                 $this->_db->query($requete);
             }

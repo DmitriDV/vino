@@ -25,16 +25,23 @@ class CellierControlleur
         // cellier
         if(isset($requete->url_elements[0]) && !is_numeric($requete->url_elements[0]))
         {   
-            /** id_usager par default */
-            $id_usager = 1;
             switch($requete->url_elements[0]) 
                 {                    
                     case 'cellier':
                         if(isset($requete->url_elements[1]) && is_numeric($requete->url_elements[1]))
                         {
                             $id_cellier = (int)$requete->url_elements[1];
-                            $this->retour["data"] = $this->getBouteillesDansCeCellier($id_cellier, $id_usager);
-                            break;
+                            if(isset($requete->url_elements[2]) && is_numeric($requete->url_elements[2]))
+                            {
+                                $id_usager = (int)$requete->url_elements[2];
+                                $this->retour["data"] = $this->getBouteillesDansCeCellier($id_cellier, $id_usager);
+                                break;
+                            }
+                            else
+                            {
+                                $this->retour['erreur'] = $this->erreur(400);
+                                unset($this->retour['data']);
+                            }
                         }
                         else
                         {
@@ -64,7 +71,7 @@ class CellierControlleur
     public function putAction(Requete $requete)		// Modification
 	{   
         /** id_usager par default */
-            $id_usager = 1;
+            $id_usager = 1; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // cellier
         if(isset($requete->url_elements[0]) && ($requete->url_elements[0] === 'cellier'))
         {   
@@ -84,13 +91,13 @@ class CellierControlleur
                         }
                         else
                         {
-                            $this->retour['erreur'] = $this->erreur(401);
+                            $this->retour['erreur'] = $this->erreur(400);
                             unset($this->retour['data']);
                         } 
                     }
                     else
                     {
-                        $this->retour['erreur'] = $this->erreur(402);
+                        $this->retour['erreur'] = $this->erreur(400);
                         unset($this->retour['data']);
                     }
                 }
@@ -100,17 +107,19 @@ class CellierControlleur
 
                 }
             }
-            else 
+            else if(isset($requete->url_elements[1]) && ($requete->url_elements[1] === 'ajout'))
             {
-                $this->retour['erreur'] = $this->erreur(403);
-                unset($this->retour['data']);
+                $this->retour["data"] = $this->ajouterUnCellier($requete->parametres);                    
             }
-
+            else
+            {
+                $this->retour['erreur'] = $this->erreur(400);
+            }
         }
         else
         {
             //$this->retour["data"] = $this->ajouterUneBouteille($requete->parametres, $id_usager);
-            $this->retour['erreur'] = $this->erreur(406);
+            $this->retour['erreur'] = $this->erreur(400);
         }
         return $this->retour;	
 	}
@@ -127,7 +136,7 @@ class CellierControlleur
         if(isset($requete->url_elements[0]) && !is_numeric($requete->url_elements[0]))
         {   
             /** id_usager par default */
-            $id_usager = 1;
+            $id_usager = 1; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             switch($requete->url_elements[0]) 
             {                    
                 case 'cellier':
@@ -198,6 +207,20 @@ class CellierControlleur
     }
 
     /** Fonctions pour les actions PUT */
+
+    /**
+	 * Ajouter une bouteille au cellier
+	 * @access private
+	 * @param Array Les informations de la bouteille
+	 * @return int $id_bouteille Identifiant de la nouvelle bouteille
+	 */	
+	private function ajouterUnCellier($data)
+	{
+		$res = Array();
+		$oCellier = new Cellier();
+		$res = $oCellier->ajouterCellier($data);
+		return $res; 
+	}
 
     /**
 	 * Ajouter une bouteille au cellier

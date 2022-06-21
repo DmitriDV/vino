@@ -21,75 +21,33 @@ class UsagerControlleur
 	 */
 	public function getAction(Requete $requete)
 	{
-        if(isset($requete->url_elements[0]) && is_numeric($requete->url_elements[0]))	// Normalement l'id d'usager
-        {
-            $id = 1;
-            
-			if(isset($requete->url_elements[1])) 
-			{
-                switch($requete->url_elements[1]) 
-                {
-                    case 'login':
-                        $this->retour["data"] = $this->getLogUser($id, $requete->parametres);
-                        break;
-                    default:
-                        $this->retour['erreur'] = $this->erreur(400);
-                        unset($this->retour['data']);
-                        break;
-                }
-            }
-            else // Retourne les infos d'une usager
-            {
-                $this->retour["data"] = $this->getUsager($id);
-            }
-        } 
-        else if(isset($requete->url_elements[0]))
+        if(isset($requete->url_elements[0])) // usager
         {
             switch($requete->url_elements[0]) 
-                {
-                    case 'usager':
-                        $this->retour["data"] = $this->getUsager(1);
-                        break;
-                    case 'cellier':
-                        $this->retour["data"] = $this->getCelliersParUsager(1);
-                        break;
-                    default:
-                        $this->retour['erreur'] = $this->erreur(405);
-                        unset($this->retour['data']);
-                        break;
-                }
-            
+            {
+                case 'login':
+                    $this->retour["data"] = $this->getListerUsager(); // Renvoie tous les utilisateurs de la base de données
+                    break;
+                case 'usager':
+                    $id_usager = (int)$requete->url_elements[1];
+                    $this->retour["data"] = $this->getUsager($id_usager);  
+                    break;
+                case 'cellier':
+                    $id_usager = (int)$requete->url_elements[1];
+                    $this->retour["data"] = $this->getCelliersParUsager($id_usager);
+                    break;
+                default:
+                    $this->retour['erreur'] = $this->erreur(400);
+                    unset($this->retour['data']);
+                    break;
+            }
         }
-        
+        else 
+        {
+            $this->retour['erreur'] = $this->erreur(400);
+        }
         return $this->retour;		
-        
     }
-
-    // public function getAction(Requete $requete)
-	// {
-    //     if(isset($requete->url_elements[0])) 
-    //     {
-
-    //         switch($requete->url_elements[0]) 
-    //         {
-    //             case 'login':
-    //                 $this->retour["data"] = $this->getLogUser($requete->parametres);
-    //                 break;
-    //             default:
-    //                 $this->retour['erreur'] = $this->erreur(400);
-    //                 unset($this->retour['data']);
-    //                 break;
-    //         }
-    //     }
-    //     else // Retourne les infos d'une usager
-    //     {
-    //         $this->retour['erreur'] = $this->erreur(400);
-    //     }
-
-
-    //     return $this->retour;		
-        
-    // }
 	
 	/**
 	 * Méthode qui gère les action en POST
@@ -132,17 +90,19 @@ class UsagerControlleur
 	 */
 	public function putAction(Requete $requete)		//ajout
 	{
-		// if(!$this->valideAuthentification())
-		// {
-		// 	$this->retour['erreur'] = $this->erreur(401);
-		// }
-		// else{
-			if(isset($requete->url_elements[0]))	// Normalement l'id de la biere 
+        if(isset($requete->url_elements[0]))	// usager
+		{
+			switch($requete->url_elements[0]) 
 			{
-				$this->retour["data"] = $this->ajouterUneUsager($requete->parametres);
-				
+				case 'register':
+                    $this->retour["data"] = $this->ajouterUnUsager($requete->parametres);
+					break;
+				default:
+					$this->retour['erreur'] = $this->erreur(400);
+					unset($this->retour['data']);
+					break;
 			}
-
+		}
 		return $this->retour;
 	}
 	
@@ -181,7 +141,7 @@ class UsagerControlleur
 	 * @access private
 	 */	
 	private function getUsager($id)
-	{
+	{   
 		$res = Array();
 		$oUsager = new Usager();
 		$res = $oUsager->getUsager($id);
@@ -245,23 +205,23 @@ class UsagerControlleur
 	}
 
 	/**
-	 * Ajouter une bière 
-	 * @param Array Les informations de la bière
-	 * @return int $id_biere Identifiant de la nouvelle bière
+	 * Ajouter un usager 
+	 * @param Array Les informations du usager
+	 * @return int $id_usager Identifiant du nouvel usager
 	 * @access private
 	 */	
-	private function ajouterUneUsager($data)
+	private function ajouterUnUsager($data)
 	{
-		$res = Array();
+        $res = Array();
 		$oUsager = new Usager();
 		$res = $oUsager->ajouterUsager($data);
 		return $res; 
 	}
 
     /**
-	 * Retourne les informations de la bière $id_biere
-	 * @param int $id_biere Identifiant de la bière
-	 * @return Array Les informations de la bière
+	 * Retourne les informations de la usager $id_biere
+	 * @param int $id_biere Identifiant de la usager
+	 * @return Array Les informations de la usager
 	 * @access private
 	 */	
 	private function getLogUser($data)
@@ -272,6 +232,18 @@ class UsagerControlleur
 		return $res; 
 	}
 
+    /**
+	 * Retourne les informations des utilisateurs de la db	 
+	 * @return Array Les informations sur toutes les bières
+	 * @access private
+	 */	
+	private function getListerUsager()
+	{
+		$res = Array();
+		$oUsager = new Usager();
+		$res = $oUsager->getListeUser();
+		return $res; 
+	}
 	
 	// /**
 	//  * Valide les données d'authentification du service web

@@ -13,21 +13,31 @@
 class Usager extends Modele {
     
 	/**
-	 * Retourne la liste des usager
+	 * Cette méthode annonce une liste des bouteilles importées de la SAQ disponibles pour ajouter au cellier.
 	 * @access public
-	 * @return Array
+	 * @return Array $data Tableau des données représentants la liste des bouteilles.
 	 */
-	public function getListeUsager() 
+	public function getListeUser()
 	{
-		$res = Array();
-		if($mrResultat = $this->_db->query("select * from vino__usager"))
+		$rows = Array();
+        $requete ='SELECT * FROM vino__usager;'; 
+
+		if(($res = $this->_db->query($requete)) ==	 true)
 		{
-			while($usager = $mrResultat->fetch_assoc())
+			if($res->num_rows)
 			{
-				$res[] = $usager;
+				while($row = $res->fetch_assoc())
+				{
+					$rows[] = $row;
+				}
 			}
 		}
-		return $res;
+		else 
+		{
+			throw new Exception("Erreur de requête sur la base de donnée", 1);
+			//$this->_db->error;
+		}
+		return $rows;
 	}
 
     /**
@@ -38,23 +48,34 @@ class Usager extends Modele {
 	 */
 	// public function ajouterUsager($data) 
 	// {
-	// 	if(extract($data) > 0)
+	//  	$usager='';
+	// 	$res = Array();
+		
+	// 	$query = "INSERT INTO vino__usager (`courriel`,`mot_passe`) 
+	// 	VALUES ('". $data['courriel']. "','".$data['mot_passe']."')";
+	// 	// $query = "INSERT INTO vino__usager (`nom`, `courriel`, `phone`, `adresse`, `mot_passe`, `connecte`) 
+	// 	// VALUES ('".$nom. "','". $courriel. "','". $phone. "','".$adresse."','".$mot_passe."','true')";
+	// 	$this->_db->query($query);
+	
+	// 	$id =  ($this->_db->insert_id ? $this->_db->insert_id : 0);
+		
+	// 	if($mrResultat = $this->_db->query("select * from vino__usager where courriel =".$data['courriel']." AND mot_passe=".$data['mot_passe'].";"))
 	// 	{
-	// 		$query = "INSERT INTO vino__usager (`courriel`,`mot_passe`) 
-	// 		VALUES ('". $courriel. "','".$mot_passe."')";
-    //         // $query = "INSERT INTO vino__usager (`nom`, `courriel`, `phone`, `adresse`, `mot_passe`, `connecte`) 
-	// 		// VALUES ('".$nom. "','". $courriel. "','". $phone. "','".$adresse."','".$mot_passe."','true')";
-	// 		$this->_db->query($query);
+	// 		$usager = $mrResultat->fetch_assoc();
 	// 	}
-	// 	return ($this->_db->insert_id ? $this->_db->insert_id : 0);
+	
+	// 	$res[]= $usager;
+	// 	return $res;
 	// }
+    
     public function ajouterUsager($data)
 	{
+        
         if (is_array($data) || is_object($data)) 
-        {    
+        {   
             if(extract($data) > 0)
             {
-                $requete = "INSERT INTO vino__usager (`courriel`,`mot_passe`) VALUES ('".$courriel. "','". $mot_passe. "')";
+                $requete = "INSERT INTO vino__usager (`nom`, `prenom`, `courriel`, `phone`, `adresse`, `mot_passe`, `confirmpassword`) VALUES ('".$nom. "','".$prenom. "','".$courriel. "','".$phone. "','".$adresse. "','".$mot_passe. "','". $confirmpassword."')";
 
                 $this->_db->query($requete);
             }
@@ -92,6 +113,7 @@ class Usager extends Modele {
 	 */
 	public function getUsager($id) 
 	{
+        
 		$rows = Array();
 		$requete ='SELECT
                     u.id as usager_id_usager,
